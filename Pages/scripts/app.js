@@ -43,6 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    const clearStocksBtn = document.getElementById('clear-stocks-btn');
+
     async function updateStockList() {
         stockList.innerHTML = '';
         for (const symbol of trackedStocks) {
@@ -54,8 +56,25 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 li.textContent = `${symbol} - Error fetching data`;
             }
+            // Add remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'Remove';
+            removeBtn.style.marginLeft = '10px';
+            removeBtn.addEventListener('click', () => {
+                trackedStocks = trackedStocks.filter(s => s !== symbol);
+                updateStockList();
+            });
+            li.appendChild(removeBtn);
             stockList.appendChild(li);
         }
+    }
+
+    // Clear all tracked stocks
+    if (clearStocksBtn) {
+        clearStocksBtn.addEventListener('click', () => {
+            trackedStocks = [];
+            updateStockList();
+        });
     }
 
     // Modal logic
@@ -114,31 +133,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const buyBtn = document.getElementById('buy-btn');
     const sellBtn = document.getElementById('sell-btn');
     const holdingsList = document.getElementById('holdings-list');
+    const avgTradeGainSpan = document.getElementById('avg-trade-gain');
 
-    function updatePaperUI() {
-        paperBalanceSpan.textContent = paperBalance.toFixed(2);
-        holdingsList.innerHTML = '';
-        Object.keys(holdings).forEach(symbol => {
-            const h = holdings[symbol];
-            const li = document.createElement('li');
-            // Calculate gain if price available
-            let gainStr = '';
-            if (h.lastPrice) {
-                const gain = ((h.lastPrice - h.avgPrice) / h.avgPrice) * 100;
-                gainStr = ` | Gain: ${gain.toFixed(2)}%`;
+    function updateAverageTradeGain() {
+        // Only consider completed trades (sell)
+        let totalGain = 0;
+        let count = 0;
+        tradeHistory.forEach(entry => {
+            if (entry.type === 'sell' && entry.buyPrice !== undefined) {
+                const gain = ((entry.price - entry.buyPrice) / entry.buyPrice) * 100;
+                totalGain += gain;
+                count++;
             }
-            li.textContent = `${symbol}: ${h.qty} @ $${h.avgPrice.toFixed(2)}${gainStr}`;
-            holdingsList.appendChild(li);
         });
+        avgTradeGainSpan.textContent = count ? (totalGain / count).toFixed(2) + '%' : '0.00%';
     }
 
     function updateTradeHistoryUI() {
         tradeHistoryList.innerHTML = '';
         tradeHistory.slice().reverse().forEach(entry => {
+            let gainStr = '';
+            if (entry.type === 'sell' && entry.buyPrice !== undefined) {
+                const gain = ((entry.price - entry.buyPrice) / entry.buyPrice) * 100;
+                gainStr = ` | Gain: ${gain.toFixed(2)}%`;
+            }
             const li = document.createElement('li');
-            li.textContent = `[${entry.time}] ${entry.type.toUpperCase()} ${entry.qty} ${entry.symbol} @ $${entry.price.toFixed(2)} = $${entry.total.toFixed(2)}`;
+            li.textContent = `[${entry.time}] ${entry.type.toUpperCase()} ${entry.qty} ${entry.symbol} @ $${entry.price.toFixed(2)} = $${entry.total.toFixed(2)}${gainStr}`;
             tradeHistoryList.appendChild(li);
         });
+        updateAverageTradeGain();
     }
 
     async function updateHoldingsPrices() {
@@ -149,6 +172,28 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         updatePaperUI();
+    }
+
+    function updatePaperUI() {
+        // Update balance
+        if (paperBalanceSpan) {
+            paperBalanceSpan.textContent = paperBalance.toFixed(2);
+        }
+        // Update holdings
+        if (holdingsList) {
+            holdingsList.innerHTML = '';
+            Object.keys(holdings).forEach(symbol => {
+                const h = holdings[symbol];
+                let gainStr = '';
+                if (h.lastPrice) {
+                    const gain = ((h.lastPrice - h.avgPrice) / h.avgPrice) * 100;
+                    gainStr = ` | Gain: ${gain.toFixed(2)}%`;
+                }
+                const li = document.createElement('li');
+                li.textContent = `${symbol}: ${h.qty} @ $${h.avgPrice.toFixed(2)}${gainStr}`;
+                holdingsList.appendChild(li);
+            });
+        }
     }
 
     if (buyBtn && sellBtn && tradeSymbolInput && tradeQtyInput) {
@@ -198,6 +243,8 @@ document.addEventListener('DOMContentLoaded', function() {
             holdings[symbol].lastPrice = stock.price;
             if (holdings[symbol].qty === 0) delete holdings[symbol];
 
+            // Find average buy price for this symbol
+            let avgBuyPrice = holdings[symbol] && holdings[symbol].avgPrice ? holdings[symbol].avgPrice : stock.price;
             // Add to history
             tradeHistory.push({
                 type: 'sell',
@@ -205,7 +252,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 qty,
                 price: stock.price,
                 total: proceeds,
-                time: new Date().toLocaleString()
+                time: new Date().toLocaleString(),
+                buyPrice: avgBuyPrice
             });
 
             updatePaperUI();

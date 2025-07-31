@@ -11,10 +11,8 @@
         <h1>Stock Tracker</h1>
     </header>
     <main>
-        <section id="stock-input">
-            <input type="text" id="stock-symbol" placeholder="Enter stock symbol">
-            <button id="track-stock">Track Stock</button>
-        </section>
+        <!-- Removed stock input section as per the code change suggestion -->
+        
         <section id="stock-data">
             <h2>Stock Information</h2>
             <div id="stock-info"></div>
@@ -22,6 +20,7 @@
         <section id="stock-list-section">
             <h2>Tracked Stocks</h2>
             <button id="add-stock-btn">Add Stock</button>
+            <button id="clear-stocks-btn">Clear All</button>
             <ul id="stock-list"></ul>
         </section>
 
@@ -44,6 +43,9 @@
             <div>
                 <h3>Trade History</h3>
                 <ul id="trade-history-list"></ul>
+            </div>
+            <div>
+                <strong>Average Trade Gain:</strong> <span id="avg-trade-gain">0.00%</span>
             </div>
         </section>
 
