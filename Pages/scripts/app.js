@@ -43,20 +43,68 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    const clearStocksBtn = document.getElementById('clear-stocks-btn');
+    // Helper: fetch intraday bars for a symbol (1-min bars for today)
+    async function fetchIntradayBars(symbol) {
+        const today = new Date().toISOString().slice(0, 10);
+        const url = `https://data.alpaca.markets/v2/stocks/${symbol}/bars?timeframe=1Min&start=${today}T09:30:00Z&limit=100`;
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    "APCA-API-KEY-ID": API_KEY,
+                    "APCA-API-SECRET-KEY": API_SECRET
+                }
+            });
+            if (!response.ok) return [];
+            const data = await response.json();
+            if (!data.bars) return [];
+            // Convert to Chart.js financial format
+            return data.bars.map(bar => ({
+                x: new Date(bar.t),
+                o: bar.o,
+                h: bar.h,
+                l: bar.l,
+                c: bar.c
+            }));
+        } catch {
+            return [];
+        }
+    }
+
+    // Store local price history for each holding
+    let holdingPriceHistory = {}; // { symbol: [ { t, o, h, l, c } ] }
+
+    // Store chart instances to avoid duplicates
+    const holdingCharts = {};
+
+    // Update holdings prices and record price history
+    async function updateHoldingsPrices() {
+        for (const symbol in holdings) {
+            const stock = await fetchStock(symbol);
+            if (stock) {
+                holdings[symbol].lastPrice = stock.price;
+            }
+        }
+        updatePaperUI();
+    }
 
     async function updateStockList() {
         stockList.innerHTML = '';
         for (const symbol of trackedStocks) {
             const stock = await fetchStock(symbol);
-            const li = document.createElement('li');
-            li.className = 'stock-item';
+
+            // Create container for stock info only (no chart)
+            const container = document.createElement('div');
+            container.className = 'stock-item';
+
+            // Stock info
+            const infoDiv = document.createElement('div');
             if (stock) {
-                li.innerHTML = `<strong>${stock.symbol}</strong> - $${stock.price} <small>(${stock.time})</small>`;
+                infoDiv.innerHTML = `<strong>${stock.symbol}</strong> - $${stock.price} <small>(${stock.time})</small>`;
             } else {
-                li.textContent = `${symbol} - Error fetching data`;
+                infoDiv.textContent = `${symbol} - Error fetching data`;
             }
-            // Add remove button
+
+            // Remove button
             const removeBtn = document.createElement('button');
             removeBtn.textContent = 'Remove';
             removeBtn.style.marginLeft = '10px';
@@ -64,10 +112,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 trackedStocks = trackedStocks.filter(s => s !== symbol);
                 updateStockList();
             });
-            li.appendChild(removeBtn);
-            stockList.appendChild(li);
+            infoDiv.appendChild(removeBtn);
+
+            container.appendChild(infoDiv);
+            stockList.appendChild(container);
+
+            // Removed candlestick chart rendering for tracked stocks
         }
     }
+
+    const clearStocksBtn = document.getElementById('clear-stocks-btn');
 
     // Clear all tracked stocks
     if (clearStocksBtn) {
@@ -164,16 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateAverageTradeGain();
     }
 
-    async function updateHoldingsPrices() {
-        for (const symbol in holdings) {
-            const stock = await fetchStock(symbol);
-            if (stock) {
-                holdings[symbol].lastPrice = stock.price;
-            }
-        }
-        updatePaperUI();
-    }
-
+    // Call renderHoldingCharts() inside updatePaperUI to keep charts in sync
     function updatePaperUI() {
         // Update balance
         if (paperBalanceSpan) {

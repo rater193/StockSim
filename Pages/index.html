@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Tracker</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4b0.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
 </head>
 <body>
     <header>
@@ -21,7 +24,7 @@
             <h2>Tracked Stocks</h2>
             <button id="add-stock-btn">Add Stock</button>
             <button id="clear-stocks-btn">Clear All</button>
-            <ul id="stock-list"></ul>
+            <div id="stock-list"></div>
         </section>
 
         <!-- Add after the tracked stocks section, before the modal -->

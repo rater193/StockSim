@@ -1,73 +1,177 @@
-body {
-    font-family: Arial, sans-serif;
+:root {
+    --bg: #181a20;
+    --surface: #23262f;
+    --accent: #00c896;
+    --accent-hover: #00a87a;
+    --text: #f4f4f4;
+    --text-secondary: #b0b0b0;
+    --danger: #ff4d4f;
+    --border-radius: 10px;
+    --transition: 0.2s;
+}
+
+html, body {
+    height: 100%;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
 }
 
 header {
-    background: #35424a;
-    color: #ffffff;
-    padding: 10px 0;
+    background: var(--surface);
+    color: var(--accent);
+    padding: 24px 0 12px 0;
     text-align: center;
+    box-shadow: 0 2px 8px #0002;
 }
 
-h1 {
-    margin: 0;
+h1, h2, h3 {
+    margin: 0 0 12px 0;
+    font-weight: 600;
 }
 
-.container {
-    width: 80%;
-    margin: auto;
-    overflow: hidden;
+main {
+    flex: 1 0 auto;
+    max-width: 800px;
+    margin: 32px auto;
+    padding: 24px;
+    background: var(--surface);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 24px #0004;
 }
 
-.stock-list {
+section {
+    margin-bottom: 32px;
+}
+
+button {
+    background: var(--accent);
+    color: var(--text);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 8px 18px;
+    margin: 0 6px 8px 0;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+button:hover {
+    background: var(--accent-hover);
+}
+button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+input[type="text"], input[type="number"] {
+    background: #23262f;
+    color: var(--text);
+    border: 1px solid #333;
+    border-radius: var(--border-radius);
+    padding: 8px 12px;
+    margin: 0 8px 8px 0;
+    font-size: 1rem;
+    outline: none;
+    transition: border var(--transition);
+}
+input[type="text"]:focus, input[type="number"]:focus {
+    border: 1.5px solid var(--accent);
+}
+
+#stock-list, #holdings-list, #trade-history-list {
     list-style: none;
     padding: 0;
-}
-
-.stock-item {
-    background: #ffffff;
-    margin: 10px 0;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.stock-item h2 {
     margin: 0;
-    font-size: 1.5em;
 }
 
-.stock-item p {
-    margin: 5px 0;
+.stock-item, #holdings-list li {
+    background: #23262f;
+    border-radius: var(--border-radius);
+    margin-bottom: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px #0002;
 }
 
-.footer {
+#holdings-list li {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#trade-history-list li {
+    background: #181a20;
+    border-radius: var(--border-radius);
+    margin-bottom: 8px;
+    padding: 10px 14px;
+    color: var(--text-secondary);
+    font-size: 0.97rem;
+    box-shadow: 0 1px 4px #0002;
+}
+
+#paper-account-section {
+    background: #20232b;
+    border-radius: var(--border-radius);
+    padding: 18px 18px 10px 18px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px #0002;
+}
+
+#paper-balance {
+    color: var(--accent);
+    font-weight: bold;
+}
+
+#avg-trade-gain {
+    color: var(--accent);
+    font-weight: bold;
+}
+
+footer {
+    flex-shrink: 0;
     text-align: center;
-    padding: 20px 0;
-    background: #35424a;
-    color: #ffffff;
-    position: relative;
-    bottom: 0;
-    width: 100%;
+    color: var(--text-secondary);
+    padding: 24px 0 12px 0;
+    background: var(--surface);
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    margin-top: 32px;
+    font-size: 0.95rem;
 }
 
 /* Add to your main.css for modal centering */
 #add-stock-modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(24,26,32,0.85);
     align-items: center;
     justify-content: center;
     z-index: 1000;
 }
-
-#add-stock-modal.active {
+#add-stock-modal.active, #add-stock-modal[style*="display: flex"] {
+    display: flex !important;
+}
+#add-stock-modal > div {
+    background: #23262f;
+    color: var(--text);
+    border-radius: var(--border-radius);
+    padding: 32px 28px 24px 28px;
+    min-width: 260px;
+    box-shadow: 0 4px 24px #0008;
     display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+#add-stock-modal label {
+    margin-bottom: 6px;
+    color: var(--text-secondary);
 }
