@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Tracker</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <header>
+        <h1>Stock Tracker</h1>
+    </header>
+    <main>
+        <section id="stock-input">
+            <input type="text" id="stock-symbol" placeholder="Enter stock symbol">
+            <button id="track-stock">Track Stock</button>
+        </section>
+        <section id="stock-data">
+            <h2>Stock Information</h2>
+            <div id="stock-info"></div>
+        </section>
+        <section id="stock-list-section">
+            <h2>Tracked Stocks</h2>
+            <button id="add-stock-btn">Add Stock</button>
+            <ul id="stock-list"></ul>
+        </section>
+
+        <!-- Add after the tracked stocks section, before the modal -->
+        <section id="paper-account-section">
+            <h2>Paper Account</h2>
+            <div>Balance: $<span id="paper-balance">10000.00</span></div>
+            <div>
+                <input type="text" id="trade-symbol" placeholder="Symbol">
+                <input type="number" id="trade-qty" placeholder="Qty" min="1" value="1">
+                <button id="buy-btn">Buy</button>
+                <button id="sell-btn">Sell</button>
+            </div>
+            <div>
+                <h3>Holdings</h3>
+                <ul id="holdings-list"></ul>
+            </div>
+
+            <!-- Add this after your holdings section in index.html -->
+            <div>
+                <h3>Trade History</h3>
+                <ul id="trade-history-list"></ul>
+            </div>
+        </section>
+
+        <!-- Modal for adding a stock -->
+        <div id="add-stock-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+            <div style="background:#fff; padding:20px; border-radius:8px; min-width:250px;">
+                <label for="modal-stock-symbol">Stock Symbol:</label>
+                <input type="text" id="modal-stock-symbol" placeholder="e.g. AAPL">
+                <button id="modal-ok-btn">OK</button>
+                <button id="modal-cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2023 Stock Tracker</p>
+    </footer>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
